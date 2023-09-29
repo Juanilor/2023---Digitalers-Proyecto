@@ -8,15 +8,9 @@
     -  Id {automatico}
 */
 
-const formularioProductoHTML = document.getElementById('formularioProducto')
+const formularioProductoHTML = document.getElementById("formularioProducto");
 const tbodyTable = document.getElementById("tableBodyHtml");
-
-console.log(formularioProductoHTML)
-
-formularioProductoHTML.addEventListener('submit',() => {
-    preventDefault()
-   alert('eco')
-})
+const inputFiltrarHTML = document.getElementById('filtrar')
 
 const consolas = [
   {
@@ -58,26 +52,86 @@ const consolas = [
   // ... Puedes continuar agregando más consolas según lo desees.
 ];
 
-consolas.forEach(function (conso, index /*, array original */) {
-  console.dir(tbodyTable);
+console.log(consolas);
 
-  tbodyTable.innerHTML += `
-    <tr>
-    <td class="table-image">
-      <img
-        src="${conso.imagen}"
-        alt="${conso.titulo}"
-      />
-    </td>
-    <td class="table-title">${conso.titulo}</td>
-    <td class="table-description">${conso.descripcion}
-    </td>
-    <td class="table-price">$${conso.precio}</td>
-    <td class="table-categorie">${conso.categoria}</td>
-  </tr>`;
+const obtenerFecha = () => {
+  const fecha = new Date();
+  let mes = fecha.getMonth() + 1;
+  if (mes < 10) {
+    mes = "0" + mes;
+  }
+  const year = fecha.getFullYear();
+  let dia = fecha.getDate();
+  if (dia < 10) {
+    dia = "0" + dia;
+  }
+  const fechaFormateada = `${year}-${mes}-${dia}`;
+
+  return fechaFormateada;
+};
+
+// ! LISTENER EVENTO FORMULARIO
+formularioProductoHTML.addEventListener("submit", (e) => {
+  e.preventDefault();
+
+  const el = formularioProductoHTML.elements;
+
+  const nuevoProducto = {
+    id: crypto.randomUUID(),
+    titulo: el.titulo.value,
+    categoria: el.categoria.value,
+    precio: el.precio.valueAsNumber,
+    descripcion: el.descripcion.value,
+    imagen: el.imagen.value,
+    fechaDeCreacion: obtenerFecha(),
+  };
+
+  consolas.push(nuevoProducto);
+
+  pintarProductos();
+
+  formularioProductoHTML.reset();
+  el.titulo.focus();
 });
 
-console.log(consolas);
+const pintarProductos = () => {
+  tbodyTable.innerHTML = "";
+  consolas.forEach(function (conso, index /*, array original */) {
+    tbodyTable.innerHTML += `
+      <tr>
+      <td class="table-image">
+        <img
+          src="${conso.imagen}"
+          alt="${conso.titulo}"
+        />
+      </td>
+      <td class="table-title">${conso.titulo}</td>
+      <td class="table-description">${conso.descripcion}
+      </td>
+      <td class="table-price">$${conso.precio}</td>
+      <td class="table-categorie">${conso.categoria}</td>
+      <td class="table-categorie">
+        <button class='mt-4 btn btn-sm btn-danger' onclick='borrarProducto(${index})'>
+          <i class="fa-solid fa-trash"></i>
+        </button>
+      </td>
+    </tr>`;
+  });
+};
+
+inputFiltrarHTML.addEventListener('keyup', (evt) => {
+  console.log(evt.target.value)
+
+})
+
+const borrarProducto = (indiceRecibido) => {
+  console.dir(indiceRecibido);
+
+  consolas.splice(indiceRecibido, 1);
+  pintarProductos();
+};
+
+pintarProductos();
 
 /*         <tr>
             <td class="table-image">
