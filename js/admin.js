@@ -88,15 +88,15 @@ formularioProductoHTML.addEventListener("submit", (e) => {
 
   consolas.push(nuevoProducto);
 
-  pintarProductos();
-
+  
   formularioProductoHTML.reset();
   el.titulo.focus();
+  pintarProductos(consolas);
 });
 
-const pintarProductos = () => {
+const pintarProductos = (arrayAPintar) => {
   tbodyTable.innerHTML = "";
-  consolas.forEach(function (conso, index /*, array original */) {
+  arrayAPintar.forEach(function (conso, index /*, array original */) {
     tbodyTable.innerHTML += `
       <tr>
       <td class="table-image">
@@ -111,9 +111,14 @@ const pintarProductos = () => {
       <td class="table-price">$${conso.precio}</td>
       <td class="table-categorie">${conso.categoria}</td>
       <td class="table-categorie">
-        <button class='mt-4 btn btn-sm btn-danger' onclick='borrarProducto(${index})'>
+      <div class='d-flex gap-1'>
+        <button class='mt-4 btn btn-sm btn-danger' onclick='borrarProducto(${conso.id})'>
           <i class="fa-solid fa-trash"></i>
         </button>
+        <button class='btn btn-success btn-sm' onclick='editarProducto(${conso.id})'>
+          <i class='fa-solid fa-pen-to-square'></i>
+        </button>
+      </div> 
       </td>
     </tr>`;
   });
@@ -122,16 +127,49 @@ const pintarProductos = () => {
 inputFiltrarHTML.addEventListener('keyup', (evt) => {
   console.log(evt.target.value)
 
+  const busqueda = evt.target.value.toLowerCase();
+
+  const resultado = consolas.filter(producto => {
+      const titulo = producto.titulo.toLowerCase()
+
+    if(titulo.includes(busqueda)){
+      return true
+    }
+  })
+  console.log(resultado)
+  pintarProductos(resultado)
 })
 
-const borrarProducto = (indiceRecibido) => {
-  console.dir(indiceRecibido);
+const borrarProducto = (idRecibido) => {
 
-  consolas.splice(indiceRecibido, 1);
-  pintarProductos();
+  const indiceEncontrado = consolas.findIndex(idProducto =>{
+    if(idProducto.id === idRecibido){
+      return true
+    }
+    return false
+  })
+
+  consolas.splice(indiceEncontrado, 1);
+  pintarProductos(consolas);
 };
 
-pintarProductos();
+const editarProducto = (id) => {
+  console.log(id)
+}
+
+/*
+const obtenerBotones = () => {
+  const deleteButtons = document.querySelectorAll('.btn-delete')
+
+  deleteButtons.forEach((btn, index) => {
+    btn.addEventListener('click', () => {
+      borrarProducto(index)
+    } )
+  })
+}
+*/
+
+pintarProductos(consolas);
 
 /*         <tr>
             <td class="table-image">
@@ -148,3 +186,4 @@ pintarProductos();
             <td class="table-price">$500</td>
             <td class="table-categorie">categoria</td>
           </tr> */
+          
