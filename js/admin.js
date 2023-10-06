@@ -10,10 +10,13 @@
 
 const formularioProductoHTML = document.getElementById("formularioProducto");
 const tbodyTable = document.getElementById("tableBodyHtml");
-const inputFiltrarHTML = document.getElementById('filtrar')
+const inputFiltrarHTML = document.getElementById("filtrar");
+
+const btn = document.querySelector('button.btn[type="submit"]');
 
 const consolas = [
   {
+    id: crypto.randomUUID(),
     descripcion: "Consola de hogar con gráficos en alta definición.",
     titulo: "PlayStation 5",
     fechaDeCreacion: "2020-11-12",
@@ -23,6 +26,7 @@ const consolas = [
     categoria: "Consola de Hogar",
   },
   {
+    id: crypto.randomUUID(),
     descripcion: "Consola portátil con pantalla táctil.",
     titulo: "Nintendo Switch",
     fechaDeCreacion: "2017-03-03",
@@ -32,6 +36,7 @@ const consolas = [
     categoria: "Consola Portátil",
   },
   {
+    id: crypto.randomUUID(),
     descripcion:
       "Consola de hogar con alta potencia y compatibilidad hacia atrás.",
     titulo: "Xbox Series X",
@@ -42,6 +47,7 @@ const consolas = [
     categoria: "Consola de Hogar",
   },
   {
+    id: crypto.randomUUID(),
     descripcion: "Consola clásica miniaturizada con juegos preinstalados.",
     titulo: "NES Classic Edition",
     fechaDeCreacion: "2016-11-10",
@@ -51,6 +57,8 @@ const consolas = [
   },
   // ... Puedes continuar agregando más consolas según lo desees.
 ];
+
+let idEditar;
 
 console.log(consolas);
 
@@ -76,8 +84,16 @@ formularioProductoHTML.addEventListener("submit", (e) => {
 
   const el = formularioProductoHTML.elements;
 
+  let id;
+
+  if (idEditar) {
+    id = idEditar;
+  } else {
+    id = crypto.randomUUID();
+  }
+
   const nuevoProducto = {
-    id: crypto.randomUUID(),
+    id: id,
     titulo: el.titulo.value,
     categoria: el.categoria.value,
     precio: el.precio.valueAsNumber,
@@ -86,9 +102,25 @@ formularioProductoHTML.addEventListener("submit", (e) => {
     fechaDeCreacion: obtenerFecha(),
   };
 
-  consolas.push(nuevoProducto);
+  if (idEditar) {
+    const index = consolas.findIndex((consola) => {
+      return consola.id === idEditar;
+    });
 
-  
+    consolas[index] = nuevoProducto;
+    idEditar === undefined;
+    btn.innerText = "Agregar Producto";
+    btn.classList.remove("btn-success");
+  } else {
+    consolas.push(nuevoProducto);
+  }
+
+  Swal.fire({
+    icon: 'success',
+    title: 'Producto Agregado/Modificado Correctamente',
+    text: 'El Producto se agrego o modifico correctamente.'
+  })
+
   formularioProductoHTML.reset();
   el.titulo.focus();
   pintarProductos(consolas);
@@ -112,10 +144,10 @@ const pintarProductos = (arrayAPintar) => {
       <td class="table-categorie">${conso.categoria}</td>
       <td class="table-categorie">
       <div class='d-flex gap-1'>
-        <button class='mt-4 btn btn-sm btn-danger' onclick='borrarProducto(${conso.id})'>
+        <button class='mt-4 btn btn-sm btn-danger' onclick='borrarProducto("${conso.id}")'>
           <i class="fa-solid fa-trash"></i>
         </button>
-        <button class='btn btn-success btn-sm' onclick='editarProducto(${conso.id})'>
+        <button class='mt-4 btn btn-success btn-sm' onclick="editarProducto('${conso.id}')">
           <i class='fa-solid fa-pen-to-square'></i>
         </button>
       </div> 
@@ -124,38 +156,61 @@ const pintarProductos = (arrayAPintar) => {
   });
 };
 
-inputFiltrarHTML.addEventListener('keyup', (evt) => {
-  console.log(evt.target.value)
+inputFiltrarHTML.addEventListener("keyup", (evt) => {
+  console.log(evt.target.value);
 
   const busqueda = evt.target.value.toLowerCase();
 
-  const resultado = consolas.filter(producto => {
-      const titulo = producto.titulo.toLowerCase()
+  const resultado = consolas.filter((producto) => {
+    const titulo = producto.titulo.toLowerCase();
 
-    if(titulo.includes(busqueda)){
-      return true
+    if (titulo.includes(busqueda)) {
+      return true;
     }
-  })
-  console.log(resultado)
-  pintarProductos(resultado)
-})
+  });
+  console.log(resultado);
+  pintarProductos(resultado);
+});
 
 const borrarProducto = (idRecibido) => {
-
-  const indiceEncontrado = consolas.findIndex(idProducto =>{
-    if(idProducto.id === idRecibido){
-      return true
+  const indiceEncontrado = consolas.findIndex((idProducto) => {
+    if (idProducto.id === idRecibido) {
+      return true;
     }
-    return false
-  })
+    return false;
+  });
 
   consolas.splice(indiceEncontrado, 1);
   pintarProductos(consolas);
 };
+// - Editar Producto
 
-const editarProducto = (id) => {
-  console.log(id)
-}
+const editarProducto = function (idRecibido) {
+  console.log(idRecibido);
+
+  let productoEditar = consolas.find((prod) => {
+    if (prod.id === idRecibido) {
+      return true;
+    }
+  });
+
+  if (!productoEditar) return;
+
+  idEditar = productoEditar.id;
+
+  const elements = formularioProductoHTML.elements;
+
+  elements.titulo.value = productoEditar.titulo;
+  elements.categoria.value = productoEditar.categoria;
+  elements.precio.value = productoEditar.precio;
+  elements.imagen.value = productoEditar.imagen;
+  elements.descripcion.value = productoEditar.descripcion;
+
+  btn.innerText = "Editar Producto";
+  btn.classList.add("btn-success");
+
+  idEditar === undefined;
+};
 
 /*
 const obtenerBotones = () => {
@@ -186,4 +241,3 @@ pintarProductos(consolas);
             <td class="table-price">$500</td>
             <td class="table-categorie">categoria</td>
           </tr> */
-          
